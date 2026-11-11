@@ -42,13 +42,15 @@
     X(REBOOTING, "Rebooting...") \
     X(REBOOT_FAIL, "Reboot failed (%08lX). Hold power and choose Reboot.") \
     X(MARK_TITLE, "Green check") \
-    X(MARK_HINT, "A  Mark/unmark     B  Back     L/R  Page") \
+    X(MARK_HINT, "A  Mark/unmark    X  Games/All    B  Back") \
+    X(MARK_GAMES, "games")\
+    X(MARK_ALL, "all titles")\
     X(MARK_ON, "Marked") \
     X(MARK_OFF, "Not marked") \
     X(MARK_ORIGINAL, "Original") \
     X(MARK_BEFORE, "Now") \
     X(MARK_AFTER, "With check") \
-    X(MARK_NO_BACKUP, "Marked by an older tool: no original to restore.") \
+    X(MARK_NO_ORIGINAL, "Could not find the original icon of this title.") \
     X(MARK_EMPTY, "No games found in the icon cache.") \
     X(ERR_TITLE, "Something went wrong") \
     X(ERR_OPEN, "Could not open the HOME Menu saves (%08lX).") \

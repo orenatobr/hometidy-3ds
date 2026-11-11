@@ -12,7 +12,7 @@ out=out
 mkdir -p "$out"
 
 bannertool makebanner -i meta/banner.png -a meta/audio.wav -o "$out/banner.bnr"
-bannertool makesmdh -s "HomeTidy" -l "Sort the HOME Menu, check off finished games" -p "orenatobr" -i meta/icon.png -o "$out/icon.icn"
+bannertool makesmdh -s "HomeTidy" -l "Sort HOME, mark finished games" -p "orenatobr" -i meta/icon.png -o "$out/icon.icn"
 
 # region extdata_id system_save_id (HOME Menu of each region)
 ids() {

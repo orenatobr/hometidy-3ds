@@ -57,6 +57,7 @@ typedef struct {
     Game *games;
     size_t ngames;
     int sel, mscroll;
+    bool show_all, have_original;
     UiIcon *ic_now, *ic_after;
     char after_label[32];
 
@@ -128,6 +129,7 @@ static void build_games(App *a)
 {
     size_t lines = a->cl / CACHE_ENTRY;
     if (a->dl / SMDH_SIZE < lines) lines = a->dl / SMDH_SIZE;
+    free(a->games);
     a->games = calloc(lines ? lines : 1, sizeof(Game));
     a->ngames = 0;
     if (!a->games) return;
@@ -135,6 +137,7 @@ static void build_games(App *a)
         uint64_t tid = rd64(a->cache + i * CACHE_ENTRY + 8);
         const NameEntry *nm = namedb_find(a->names, tid);
         if (!nm || !smdh_valid(a->cached + i * SMDH_SIZE) || !is_listed_kind(tid) || !layout_has_title(a->launcher, a->save, tid)) continue;
+        if (!a->show_all && layout_folder_of(a->launcher, a->save, tid) < 0) continue; /* games sit in folders, apps at the top */
         bool dup = false;
         for (size_t k = 0; k < a->ngames; k++) dup |= a->games[k].tid == tid;
         if (dup) continue;
@@ -350,6 +353,21 @@ static void do_restore(App *a)
 
 /* ---- green check --------------------------------------------------------------------- */
 
+/* The icon blocks a marked title had before: the saved copy, else the title's own icon. */
+static bool original_icons(const Game *g, uint8_t *out)
+{
+    char p[96];
+    size_t n = 0;
+    if (g->has_backup && backup_path_for(g->tid, p, sizeof p)) {
+        uint8_t *orig = sd_read(p, &n);
+        bool ok = orig && n == SMDH_ICONS_LEN;
+        if (ok) memcpy(out, orig, n);
+        free(orig);
+        if (ok) return true;
+    }
+    return R_SUCCEEDED(fsio_title_icons(g->tid, out));
+}
+
 static void refresh_previews(App *a)
 {
     if (!a->ngames || !a->ic_now || !a->ic_after) return;
@@ -358,15 +376,13 @@ static void refresh_previews(App *a)
     memcpy(smdh, a->cached + g->idx * SMDH_SIZE, SMDH_SIZE);
     ui_icon_set(a->ic_now, smdh + SMDH_ICON_LARGE, 48);
     snprintf(a->after_label, sizeof a->after_label, "%s", tr(S_MARK_AFTER));
+    a->have_original = true;
     if (!g->marked) {
         icon_mark(smdh);
-    } else if (g->has_backup) {
-        char p[96];
-        size_t n = 0;
-        backup_path_for(g->tid, p, sizeof p);
-        uint8_t *orig = sd_read(p, &n);
-        if (orig && n == SMDH_ICONS_LEN) memcpy(smdh + SMDH_ICON_SMALL, orig, n);
-        free(orig);
+    } else {
+        static uint8_t orig[SMDH_ICONS_LEN];
+        a->have_original = original_icons(g, orig);
+        if (a->have_original) memcpy(smdh + SMDH_ICON_SMALL, orig, SMDH_ICONS_LEN);
         snprintf(a->after_label, sizeof a->after_label, "%s", tr(S_MARK_ORIGINAL));
     }
     ui_icon_set(a->ic_after, smdh + SMDH_ICON_LARGE, 48);
@@ -387,16 +403,9 @@ static void toggle_mark(App *a)
         memcpy(smdh, live, SMDH_SIZE);
         icon_mark(smdh);
         memcpy(fresh, smdh + SMDH_ICON_SMALL, SMDH_ICONS_LEN);
-    } else {
-        size_t n = 0;
-        uint8_t *orig = g->has_backup ? sd_read(p, &n) : NULL;
-        if (!orig || n != SMDH_ICONS_LEN) {
-            free(orig);
-            fail_msg(a, ST_MARK, tr(S_MARK_NO_BACKUP));
-            return;
-        }
-        memcpy(fresh, orig, SMDH_ICONS_LEN);
-        free(orig);
+    } else if (!original_icons(g, fresh)) {
+        fail_msg(a, ST_MARK, tr(S_MARK_NO_ORIGINAL));
+        return;
     }
 
     Result orc = fsio_open(&a->fs, a->region);
@@ -496,6 +505,16 @@ static void update(App *a, u32 down, const touchPosition *t)
                     if (idx == a->sel) down |= KEY_A; else select_game(a, idx);
                 }
             }
+        }
+        if (down & KEY_X) {
+            uint64_t keep = a->ngames ? a->games[a->sel].tid : 0;
+            a->show_all = !a->show_all;
+            build_games(a);
+            a->sel = a->mscroll = 0;
+            for (size_t i = 0; i < a->ngames; i++)
+                if (a->games[i].tid == keep) a->sel = (int)i;
+            select_game(a, a->sel);
+            a->mscroll = a->sel > MARK_PAGE / 2 ? a->sel - MARK_PAGE / 2 : 0;
         }
         if (down & KEY_A) toggle_mark(a);
         break;
@@ -618,7 +637,7 @@ static void draw_mark(App *a)
     char s[96];
     size_t marked = 0;
     for (size_t i = 0; i < a->ngames; i++) marked += a->games[i].marked;
-    snprintf(s, sizeof s, "%d / %d", (int)marked, (int)a->ngames);
+    snprintf(s, sizeof s, "%d / %d %s", (int)marked, (int)a->ngames, a->show_all ? tr(S_MARK_ALL) : tr(S_MARK_GAMES));
     ui_top();
     ui_header(tr(S_MARK_TITLE), s);
     if (!a->ngames) {
@@ -630,7 +649,7 @@ static void draw_mark(App *a)
         ui_text_center(111, 52, 0.45f, COL_FG_MUTED, tr(S_MARK_BEFORE));
         ui_text_center(289, 52, 0.45f, COL_FG_MUTED, a->after_label);
         ui_icon_draw(a->ic_now, 63, 78, 2.0f);
-        if (!(g->marked && !g->has_backup)) ui_icon_draw(a->ic_after, 241, 78, 2.0f);
+        if (a->have_original) ui_icon_draw(a->ic_after, 241, 78, 2.0f);
         ui_text_center(TOP_W / 2, 192, 0.55f, COL_FG, g->nm->name);
         ui_text_center(TOP_W / 2, 214, 0.45f, g->marked ? COL_ACCENT : COL_FG_MUTED, g->marked ? tr(S_MARK_ON) : tr(S_MARK_OFF));
     }

@@ -345,3 +345,14 @@ bool layout_has_title(const uint8_t *launcher, const uint8_t *save, uint64_t tid
     }
     return false;
 }
+
+int layout_folder_of(const uint8_t *launcher, const uint8_t *save, uint64_t tid)
+{
+    for (int x = 0; x < 2; x++) {
+        const uint8_t *b = x ? save : launcher;
+        for (int i = 0; i < LAYOUT_SLOTS; i++)
+            if (rd64(b + (x ? S_TITLES : L_TITLES) + 8 * (size_t)i) == tid && rd16s(b + (x ? S_POS : L_POS) + 2 * (size_t)i) >= 0)
+                return (int8_t)b[(x ? S_FOLDER_IDX : L_FOLDER_IDX) + (size_t)i];
+    }
+    return -1;
+}

@@ -15,7 +15,7 @@ DATA        :=
 INCLUDES    := source source/core
 
 APP_TITLE       := HomeTidy
-APP_DESCRIPTION := Sort the HOME Menu, check off finished games
+APP_DESCRIPTION := Sort HOME, mark finished games
 APP_AUTHOR      := orenatobr
 ICON            := meta/icon.png
 

@@ -61,6 +61,9 @@ size_t layout_rows(const uint8_t *after_l, const uint8_t *after_s, const uint8_t
 /** Titles in the layout that have no known name. */
 size_t layout_unnamed_count(const uint8_t *launcher, const uint8_t *save, const NameDB *names);
 
+/** Folder index a title sits in, or -1 when it is at the top level or not in the layout. */
+int layout_folder_of(const uint8_t *launcher, const uint8_t *save, uint64_t tid);
+
 /** True when @p tid is placed somewhere in the HOME layout. */
 bool layout_has_title(const uint8_t *launcher, const uint8_t *save, uint64_t tid);
 

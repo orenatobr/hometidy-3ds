@@ -110,9 +110,10 @@ static size_t collect(uint8_t *lau, uint8_t *sav, const NameDB *names, Entry *ou
 /* Every top level position is used once and every folder is packed from 0. */
 static bool consistent(uint8_t *lau, uint8_t *sav, const NameDB *names)
 {
-    Entry e[2 * LAYOUT_SLOTS];
+    static Entry e[2 * LAYOUT_SLOTS]; /* big buffers are static: the 3DS main thread stack is small */
+    static int top[2 * LAYOUT_SLOTS + LAYOUT_FOLDERS];
+    int nt = 0;
     size_t n = collect(lau, sav, names, e);
-    int top[2 * LAYOUT_SLOTS + LAYOUT_FOLDERS], nt = 0;
     for (size_t i = 0; i < n; i++)
         if (e[i].folder < 0) top[nt++] = e[i].pos;
     for (int i = 0; i < LAYOUT_FOLDERS; i++) {
@@ -125,7 +126,8 @@ static bool consistent(uint8_t *lau, uint8_t *sav, const NameDB *names)
     for (int i = 1; i < nt; i++)
         if (top[i] == top[i - 1]) return false;
     for (int f = 0; f < LAYOUT_FOLDERS; f++) {
-        int in[2 * LAYOUT_SLOTS], ni = 0;
+        static int in[2 * LAYOUT_SLOTS];
+        int ni = 0;
         for (size_t i = 0; i < n; i++)
             if (e[i].folder == f) in[ni++] = e[i].pos;
         qsort(in, (size_t)ni, sizeof(int), cmp_int);
@@ -162,7 +164,7 @@ LayoutStatus layout_sort(uint8_t *launcher, size_t launcher_len, uint8_t *save, 
         for (size_t i = 0; i < nn; i++) wr16(((const Entry *)nm[i])->buf + ((const Entry *)nm[i])->poff, (int16_t)slot++);
     }
 
-    Folder folders[LAYOUT_FOLDERS];
+    static Folder folders[LAYOUT_FOLDERS];
     int nf = 0;
     for (int i = 0; i < LAYOUT_FOLDERS; i++) {
         Folder *fo = &folders[nf];
@@ -178,7 +180,7 @@ LayoutStatus layout_sort(uint8_t *launcher, size_t launcher_len, uint8_t *save, 
      * folders alphabetically, reusing exactly the positions already in use. */
     const void **s_ = v, **u_ = v + n, **n_ = v + 2 * n;
     size_t ns = 0, nu = 0, nn = 0;
-    int slots[2 * LAYOUT_SLOTS + LAYOUT_FOLDERS];
+    static int slots[2 * LAYOUT_SLOTS + LAYOUT_FOLDERS];
     int nslots = 0;
     for (size_t i = 0; i < n; i++) {
         if (e[i].folder >= 0) continue;
@@ -252,7 +254,7 @@ static int cmp_item(const void *a, const void *b) { return ((const Item *)a)->po
 size_t layout_rows(const uint8_t *al, const uint8_t *as, const uint8_t *bl, const uint8_t *bs, const NameDB *names,
                    LayoutRow *rows, size_t cap)
 {
-    Item items[2 * LAYOUT_SLOTS];
+    static Item items[2 * LAYOUT_SLOTS];
     size_t n = 0;
     int card = al[L_CARD] | al[L_CARD + 1] << 8;
     struct { const uint8_t *a, *b; size_t tid, pos, fol; } f[2] = {

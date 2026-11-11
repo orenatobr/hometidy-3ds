@@ -354,7 +354,7 @@ static void refresh_previews(App *a)
 {
     if (!a->ngames || !a->ic_now || !a->ic_after) return;
     Game *g = &a->games[a->sel];
-    uint8_t smdh[SMDH_SIZE];
+    static uint8_t smdh[SMDH_SIZE]; /* big buffers are static: the 3DS main thread stack is small */
     memcpy(smdh, a->cached + g->idx * SMDH_SIZE, SMDH_SIZE);
     ui_icon_set(a->ic_now, smdh + SMDH_ICON_LARGE, 48);
     snprintf(a->after_label, sizeof a->after_label, "%s", tr(S_MARK_AFTER));
@@ -377,13 +377,13 @@ static void toggle_mark(App *a)
     if (!a->ngames) return;
     Game *g = &a->games[a->sel];
     uint8_t *live = a->cached + g->idx * SMDH_SIZE;
-    uint8_t fresh[SMDH_ICONS_LEN];
+    static uint8_t fresh[SMDH_ICONS_LEN];
     char p[96];
     backup_path_for(g->tid, p, sizeof p);
 
     if (!g->marked) {
         if (!sd_exists(p) && !sd_write(p, live + SMDH_ICON_SMALL, SMDH_ICONS_LEN)) { fail_msg(a, ST_MARK, tr(S_ERR_BACKUP)); return; }
-        uint8_t smdh[SMDH_SIZE];
+        static uint8_t smdh[SMDH_SIZE];
         memcpy(smdh, live, SMDH_SIZE);
         icon_mark(smdh);
         memcpy(fresh, smdh + SMDH_ICON_SMALL, SMDH_ICONS_LEN);

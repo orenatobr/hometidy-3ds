@@ -719,7 +719,6 @@ static void draw(App *a)
 int main(void)
 {
     if (!ui_init()) return 1;
-    i18n_init();
     App *a = calloc(1, sizeof *a);
     if (!a) return 1;
     a->state = ST_LOADING;

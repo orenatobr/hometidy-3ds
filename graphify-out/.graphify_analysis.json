@@ -1,0 +1,383 @@
+{
+  "communities": {
+    "0": [
+      "app",
+      "game",
+      "homefs",
+      "source_fsio_backup_dir_latest",
+      "source_fsio_backup_dir_new",
+      "source_fsio_c_region",
+      "source_fsio_c_source_fsio_b14ac4",
+      "source_fsio_fsio_close",
+      "source_fsio_fsio_open",
+      "source_fsio_h_source_fsio_b21a1f",
+      "source_fsio_mkdirs",
+      "source_fsio_sd_exists",
+      "source_fsio_sd_read",
+      "source_fsio_sd_write",
+      "source_main_apply_layout",
+      "source_main_backup_path_for",
+      "source_main_c_result",
+      "source_main_c_source_main_863451",
+      "source_main_c_store",
+      "source_main_c_strid",
+      "source_main_c_u32",
+      "source_main_clamp_scroll",
+      "source_main_do_restore",
+      "source_main_do_sort",
+      "source_main_fail_msg",
+      "source_main_fail_rc",
+      "source_main_hit",
+      "source_main_load_all",
+      "source_main_lock_home",
+      "source_main_merge_saved_names",
+      "source_main_prepare_sort",
+      "source_main_progress",
+      "source_main_refresh_game",
+      "source_main_refresh_previews",
+      "source_main_save_backup",
+      "source_main_save_names",
+      "source_main_select_game",
+      "source_main_start_reboot",
+      "source_main_store_of",
+      "source_main_toggle_mark",
+      "source_main_update",
+      "state",
+      "touchposition"
+    ],
+    "1": [
+      "cmp",
+      "entry",
+      "fake",
+      "layoutrow",
+      "layoutstatus",
+      "source_core_layout_c_namedb",
+      "source_core_layout_c_source_core_layout_1f16fd",
+      "source_core_layout_cmp_int",
+      "source_core_layout_cmp_item",
+      "source_core_layout_cmp_pos",
+      "source_core_layout_cmp_tid",
+      "source_core_layout_collect",
+      "source_core_layout_consistent",
+      "source_core_layout_folder_name",
+      "source_core_layout_label_for",
+      "source_core_layout_layout_diff_bytes",
+      "source_core_layout_layout_rows",
+      "source_core_layout_layout_sort",
+      "source_core_layout_layout_unnamed_count",
+      "source_core_layout_sort_ptrs",
+      "source_core_smdh_rd16s",
+      "source_core_smdh_wr16",
+      "tests_test_core",
+      "tests_test_core_blank",
+      "tests_test_core_c_storefile",
+      "tests_test_core_fake_buf",
+      "tests_test_core_fake_commit",
+      "tests_test_core_fake_read",
+      "tests_test_core_fake_write",
+      "tests_test_core_main",
+      "tests_test_core_pos_of",
+      "tests_test_core_put64",
+      "tests_test_core_set_folder",
+      "tests_test_core_set_title",
+      "tests_test_core_test_layout",
+      "tests_test_core_test_layout_rejects",
+      "tests_test_core_test_smdh_title",
+      "tests_test_core_test_sortkey",
+      "tests_test_core_test_store_icons",
+      "tests_test_core_test_store_layout"
+    ],
+    "2": [
+      "source_i18n_c_source_i18n",
+      "source_i18n_c_strid",
+      "source_i18n_h_source_i18n_df4364",
+      "source_i18n_i18n_init",
+      "source_i18n_tr",
+      "source_main_draw",
+      "source_main_draw_confirm",
+      "source_main_draw_done",
+      "source_main_draw_error",
+      "source_main_draw_mark",
+      "source_main_draw_menu",
+      "source_main_draw_sort",
+      "source_main_main",
+      "source_ui_c_source_ui",
+      "source_ui_c_u32",
+      "source_ui_h_source_ui",
+      "source_ui_measure",
+      "source_ui_ui_begin",
+      "source_ui_ui_bottom",
+      "source_ui_ui_button",
+      "source_ui_ui_card",
+      "source_ui_ui_check_badge",
+      "source_ui_ui_end",
+      "source_ui_ui_exit",
+      "source_ui_ui_header",
+      "source_ui_ui_icon_draw",
+      "source_ui_ui_icon_free",
+      "source_ui_ui_icon_new",
+      "source_ui_ui_icon_set",
+      "source_ui_ui_init",
+      "source_ui_ui_rrect",
+      "source_ui_ui_text",
+      "source_ui_ui_text_center",
+      "source_ui_ui_text_width",
+      "source_ui_ui_text_wrap",
+      "source_ui_ui_top",
+      "uiicon"
+    ],
+    "3": [
+      "nameentry",
+      "source_core_layout_layout_has_title",
+      "source_core_smdh_c_namedb",
+      "source_core_smdh_c_source_core_smdh",
+      "source_core_smdh_namedb_find",
+      "source_core_smdh_namedb_load_cache",
+      "source_core_smdh_namedb_set",
+      "source_core_smdh_put_utf8",
+      "source_core_smdh_rd32",
+      "source_core_smdh_rd64",
+      "source_core_smdh_smdh_title",
+      "source_core_smdh_smdh_valid",
+      "source_core_smdh_utf16_to_utf8",
+      "source_main_build_games",
+      "source_main_count_hidden",
+      "source_main_is_listed_kind",
+      "tools_ht_cli",
+      "tools_ht_cli_main",
+      "tools_ht_cli_slurp",
+      "tools_ht_cli_spit"
+    ],
+    "4": [
+      "source_core_icon_badge_box",
+      "source_core_icon_badge_pixel",
+      "source_core_icon_c_source_core_icon",
+      "source_core_icon_icon_is_marked",
+      "source_core_icon_icon_mark",
+      "source_core_icon_icon_pixel",
+      "source_core_icon_in_round_rect",
+      "source_core_icon_looks_marked",
+      "source_core_icon_mark_one",
+      "source_core_icon_morton",
+      "source_core_icon_pixel_offset",
+      "source_core_icon_put_rgb",
+      "source_core_icon_seg_dist",
+      "tests_test_core_test_icon"
+    ],
+    "5": [
+      "source_core_icon_h_source_core_icon",
+      "source_core_layout_h_source_core_layout_a61bdb",
+      "source_core_layout_h_source_core_layout_ca9475",
+      "source_core_layout_layout_diff_span",
+      "source_core_smdh_h_source_core_smdh",
+      "source_core_store_c_source_core_store_5448b2",
+      "source_core_store_c_store",
+      "source_core_store_c_storefile",
+      "source_core_store_h_source_core_store",
+      "source_core_store_store_apply_layout",
+      "source_core_store_store_set_icons",
+      "source_core_store_write_diff",
+      "source_core_store_write_layout",
+      "storestatus"
+    ],
+    "6": [
+      "source_fsio_c_fs_archive",
+      "source_fsio_c_result",
+      "source_fsio_fsio_commit",
+      "source_fsio_fsio_read_all",
+      "source_fsio_fsio_read_at",
+      "source_fsio_fsio_write_at",
+      "source_main_archive_of",
+      "source_main_c_fs_archive",
+      "source_main_c_storefile",
+      "source_main_path_of",
+      "source_main_store_commit",
+      "source_main_store_read",
+      "source_main_store_write"
+    ],
+    "7": [
+      "source_core_layout_cmp_folder",
+      "source_core_layout_cmp_name",
+      "source_core_sortkey_c_source_core_sortkey",
+      "source_core_sortkey_cmp_digits",
+      "source_core_sortkey_drop_tags",
+      "source_core_sortkey_drop_tail_article",
+      "source_core_sortkey_h_source_core_sortkey",
+      "source_core_sortkey_is_digit",
+      "source_core_sortkey_is_word",
+      "source_core_sortkey_sk_compare",
+      "source_core_sortkey_sk_normalize",
+      "source_core_sortkey_sk_order"
+    ],
+    "8": [
+      "source_fsio_h_source_fsio_456e3a",
+      "source_region_c_region",
+      "source_region_c_source_region_ff7c91",
+      "source_region_h_source_region_642f88",
+      "source_region_region_detect"
+    ],
+    "9": [
+      "scripts_build_cia_ids",
+      "scripts_build_cia_sh_scripts_build_cia_f55d25",
+      "scripts_build_cia_sh_scripts_build_cia_sh_entry_f55d25"
+    ],
+    "10": [
+      "scripts_build_cia_sh_scripts_build_cia_f976ba",
+      "scripts_build_cia_sh_scripts_build_cia_sh_entry_f976ba"
+    ],
+    "11": [
+      "source_core_layout_c_source_core_layout_8abf61"
+    ],
+    "12": [
+      "source_core_store_c_source_core_store_4af1b7"
+    ],
+    "13": [
+      "source_fsio_c_source_fsio_d6797b"
+    ],
+    "14": [
+      "source_i18n_h_source_i18n_9daefa"
+    ],
+    "15": [
+      "source_main_c_source_main_5e1ec8"
+    ],
+    "16": [
+      "source_region_c_source_region_0af4f3"
+    ],
+    "17": [
+      "source_region_h_source_region_edb89b"
+    ]
+  },
+  "cohesion": {
+    "0": 0.132890365448505,
+    "1": 0.10384615384615385,
+    "2": 0.16816816816816818,
+    "3": 0.20526315789473684,
+    "4": 0.3076923076923077,
+    "5": 0.2087912087912088,
+    "6": 0.28205128205128205,
+    "7": 0.25757575757575757,
+    "8": 0.4,
+    "9": 0.6666666666666666,
+    "10": 1.0,
+    "11": 1.0,
+    "12": 1.0,
+    "13": 1.0,
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0,
+    "17": 1.0
+  },
+  "gods": [
+    {
+      "id": "source_i18n_tr",
+      "label": "tr()",
+      "degree": 18
+    },
+    {
+      "id": "source_main_toggle_mark",
+      "label": "toggle_mark()",
+      "degree": 18
+    },
+    {
+      "id": "source_main_draw",
+      "label": "draw()",
+      "degree": 17
+    },
+    {
+      "id": "source_main_load_all",
+      "label": "load_all()",
+      "degree": 15
+    },
+    {
+      "id": "source_core_layout_layout_sort",
+      "label": "layout_sort()",
+      "degree": 14
+    },
+    {
+      "id": "source_main_apply_layout",
+      "label": "apply_layout()",
+      "degree": 14
+    },
+    {
+      "id": "source_main_update",
+      "label": "update()",
+      "degree": 14
+    },
+    {
+      "id": "source_main_draw_mark",
+      "label": "draw_mark()",
+      "degree": 13
+    },
+    {
+      "id": "tests_test_core_test_layout",
+      "label": "test_layout()",
+      "degree": 13
+    },
+    {
+      "id": "source_main_draw_sort",
+      "label": "draw_sort()",
+      "degree": 12
+    }
+  ],
+  "surprises": [
+    {
+      "source": "main()",
+      "target": "icon_is_marked()",
+      "source_files": [
+        "tools/ht_cli.c",
+        "source/core/icon.c"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "main()",
+      "target": "layout_sort()",
+      "source_files": [
+        "tools/ht_cli.c",
+        "source/core/layout.c"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "test_layout()",
+      "target": "layout_diff_span()",
+      "source_files": [
+        "tests/test_core.c",
+        "source/core/layout.c"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "test_layout()",
+      "target": "layout_has_title()",
+      "source_files": [
+        "tests/test_core.c",
+        "source/core/layout.c"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "test_smdh_title()",
+      "target": "smdh_title()",
+      "source_files": [
+        "tests/test_core.c",
+        "source/core/smdh.c"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

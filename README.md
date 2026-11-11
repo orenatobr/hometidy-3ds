@@ -69,6 +69,15 @@ That produces `hometidy.3dsx` and `hometidy.elf`. For the CIA, put `makerom` and
 ./scripts/build-cia.sh        # writes out/hometidy-<region>.cia for every region (or name some: EUR USA)
 ```
 
+### Releasing
+
+The CIA is built by hand, not in CI, because `makerom` and `bannertool` aren't packaged for the CI image:
+
+1. Build the ELF with the Docker command above.
+2. Get `makerom` ([3DSGuy/Project_CTR](https://github.com/3DSGuy/Project_CTR), tag `makerom-v0.18.4`) and `bannertool` ([carstene1ns/3ds-bannertool](https://github.com/carstene1ns/3ds-bannertool)) and put them on your `PATH`.
+3. Run `./scripts/build-cia.sh`, then `shasum -a 256 out/hometidy-*.cia > out/SHA256SUMS.txt`.
+4. Upload `out/hometidy-*.cia` and the sums to a GitHub release.
+
 Tests for the portable core (sorting, layout, icons, safe writes with injected failures) run on the host with a normal C compiler:
 
 ```sh

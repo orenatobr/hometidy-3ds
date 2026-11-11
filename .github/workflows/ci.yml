@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the host tests (ASan and UBSan)
+        run: make -C tests test
+
+  build-3ds:
+    runs-on: ubuntu-24.04
+    container: devkitpro/devkitarm@sha256:116afba8df8453961de2936ffab20dd441edf4d682856c1ec8b0e53d7ed0bbf5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the 3DSX
+        run: make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hometidy-3dsx
+          path: |
+            hometidy.3dsx
+            hometidy.smdh

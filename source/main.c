@@ -1,6 +1,6 @@
 /* HomeTidy: sorts the HOME Menu and draws a green check on finished games.
  *
- * Runs as a CIA on Luma3DS (EUR). Every write is preceded by a backup on the SD card and
+ * Runs as a CIA on Luma3DS. Every write is preceded by a backup on the SD card and
  * checked by reading it back; a failed write puts the original bytes back.
  */
 #include <3ds.h>
@@ -15,6 +15,7 @@
 #include "core/store.h"
 #include "fsio.h"
 #include "i18n.h"
+#include "region.h"
 #include "ui.h"
 
 #define ROWS_MAX (2 * LAYOUT_SLOTS + LAYOUT_FOLDERS)
@@ -41,6 +42,7 @@ typedef struct {
     int tick;
     char msg[256], detail[160], backup[96];
 
+    const Region *region;
     HomeFs fs;
     uint8_t *launcher, *save, *cache, *cached;
     size_t ll, sl, cl, dl;
@@ -213,11 +215,12 @@ static void load_all(App *a)
 {
     /* The saves are open only while reading: if HOME resumed while this app held them, it
      * could not open its own and would abort. */
-    Result rc = fsio_open(&a->fs);
+    Result rc = fsio_open(&a->fs, a->region);
     if (R_FAILED(rc)) {
         snprintf(a->msg, sizeof a->msg, tr(S_ERR_OPEN), (unsigned long)rc);
         size_t n = strlen(a->msg);
-        snprintf(a->msg + n, sizeof a->msg - n, " %s", tr(S_ERR_OPEN_HINT));
+        n += (size_t)snprintf(a->msg + n, sizeof a->msg - n, " ");
+        snprintf(a->msg + n, sizeof a->msg - n, tr(S_ERR_OPEN_HINT), a->region->name);
         a->after_error = ST_ERROR; /* fatal: leaving the screen exits the app */
         a->state = ST_ERROR;
         return;
@@ -298,7 +301,7 @@ static bool apply_layout(App *a, const uint8_t *to_l, const uint8_t *to_s)
     if (!save_backup(a)) { fail_msg(a, ST_SORT, tr(S_ERR_BACKUP)); return false; }
 
     progress(a, S_WORK_WRITE);
-    Result orc = fsio_open(&a->fs);
+    Result orc = fsio_open(&a->fs, a->region);
     if (R_FAILED(orc)) { fail_rc(a, ST_SORT, S_ERR_WRITE, orc); return false; }
     Store st = store_of(a);
     int err = 0;
@@ -396,7 +399,7 @@ static void toggle_mark(App *a)
         free(orig);
     }
 
-    Result orc = fsio_open(&a->fs);
+    Result orc = fsio_open(&a->fs, a->region);
     if (R_FAILED(orc)) { fail_rc(a, ST_MARK, S_ERR_WRITE, orc); return; }
     Store st = store_of(a);
     int err = 0;
@@ -534,7 +537,8 @@ static void draw_menu(App *a)
         snprintf(s, sizeof s, tr(S_INFO_UNNAMED), (int)a->unnamed);
         ui_text(36, 136, 0.5f, COL_WARN, s, 330);
     }
-    ui_text_center(TOP_W / 2, 196, 0.45f, COL_FG_MUTED, "Luma3DS  |  HOME EUR");
+    snprintf(s, sizeof s, "Luma3DS  |  HOME %s", a->region->name);
+    ui_text_center(TOP_W / 2, 196, 0.45f, COL_FG_MUTED, s);
 
     ui_bottom();
     const char *label[2] = {tr(S_MENU_SORT), tr(S_MENU_MARK)};
@@ -719,6 +723,7 @@ int main(void)
     App *a = calloc(1, sizeof *a);
     if (!a) return 1;
     a->state = ST_LOADING;
+    a->region = region_detect();
 
     while (aptMainLoop() && !a->quit) {
         hidScanInput();

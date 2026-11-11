@@ -2,14 +2,23 @@
 
 All numbers are little endian. Offsets for the layout files follow [HomeMenuEditor3DS](https://github.com/mrissaoussama/HomeMenuEditor3DS).
 
-## Where the files live (EUR)
+## Where the files live
+
+| Region | SD extdata | System save (NAND) |
+| --- | --- | --- |
+| JPN | `0x82` | `0x00020082` |
+| USA | `0x8F` | `0x0002008F` |
+| EUR, AUS | `0x98` | `0x00020098` |
+| CHN | `0xA1` | `0x000200A1` |
+| KOR | `0xA9` | `0x000200A9` |
+| TWN | `0xB1` | `0x000200B1` |
 
 | File | Archive | Size |
 | --- | --- | --- |
-| `Launcher.dat` | system save data `0x00020098` (NAND) | 9560 |
-| `SaveData.dat` | SD extdata `0x00000098` | 11680 |
-| `Cache.dat` | SD extdata `0x00000098` | 360 x 16 |
-| `CacheD.dat` | SD extdata `0x00000098` | 360 x 0x36C0 |
+| `Launcher.dat` | system save | 9560 |
+| `SaveData.dat` | extdata | 11680 |
+| `Cache.dat` | extdata | 360 x 16 |
+| `CacheD.dat` | extdata | 360 x 0x36C0 |
 
 The app opens each archive only while it reads or writes, and closes it right after. HOME can't open its own saves while another process holds them.
 
@@ -43,4 +52,4 @@ Icons are stored as 8x8 tiles in Morton order, the same order the GPU uses, so t
 
 ## Exheader rights
 
-`meta/hometidy.rsf` declares extdata `0x98` as the app's own extdata so it can be written, system save `0x00020098`, and the file system access bits of the HOME Menu and system tools. It also lists `ptm:sysm` for the reboot request.
+`meta/hometidy.rsf.in` is filled in per region by `scripts/build-cia.sh`. It declares the region's extdata as the app's own extdata so it can be written, the region's system save, and the file system access bits of the HOME Menu and system tools. It also lists `ptm:sysm` for the reboot request.

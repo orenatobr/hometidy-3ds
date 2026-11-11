@@ -52,9 +52,9 @@
     X(MARK_EMPTY, "No games found in the icon cache.", "Nenhum jogo no cache de ícones.") \
     X(ERR_TITLE, "Something went wrong", "Algo deu errado") \
     X(ERR_OPEN, "Could not open the HOME Menu saves (%08lX).", "Não consegui abrir os saves do HOME (%08lX).") \
-    X(ERR_OPEN_HINT, "Install the CIA with FBI on a Luma3DS console, EUR region.", "Instale o CIA com o FBI em um console com Luma3DS, região EUR.") \
+    X(ERR_OPEN_HINT, "Install the %s build of HomeTidy with FBI (needs Luma3DS).", "Instale o build %s do HomeTidy com o FBI (precisa de Luma3DS).") \
     X(ERR_READ, "Could not read %s (%08lX).", "Não consegui ler %s (%08lX).") \
-    X(ERR_FORMAT, "Unexpected HOME file layout (not an EUR HOME Menu?).", "Formato inesperado dos arquivos do HOME (não é um HOME EUR?).") \
+    X(ERR_FORMAT, "Unexpected HOME file layout (not a HOME Menu?).", "Formato inesperado dos arquivos do HOME (não é o HOME?).") \
     X(ERR_BACKUP, "Could not write the backup to the SD card.", "Não consegui gravar o backup no cartão SD.") \
     X(ERR_WRITE, "Write failed (%08lX). The original was put back.", "A gravação falhou (%08lX). O original foi recolocado.") \
     X(ERR_VERIFY, "Check failed: what was read back differs. The original was put back.", "A conferência falhou: o que foi lido difere. O original foi recolocado.") \

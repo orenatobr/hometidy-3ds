@@ -13,8 +13,8 @@
 
 #include "smdh.h"
 
-#define LAUNCHER_SIZE 9560 /* system save 0x00020098 (HOME Menu EUR) */
-#define SAVEDATA_SIZE 11680 /* extdata 0x98 (HOME Menu EUR) */
+#define LAUNCHER_SIZE 9560 /* system save of the HOME Menu */
+#define SAVEDATA_SIZE 11680 /* extdata of the HOME Menu */
 #define LAYOUT_SLOTS 360
 #define LAYOUT_FOLDERS 60
 #define FOLDER_NAME_BYTES 0x22

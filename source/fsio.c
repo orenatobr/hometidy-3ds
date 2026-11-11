@@ -11,14 +11,14 @@
 #define CHUNK (256 * 1024)
 #define ROOT "sdmc:/3ds/HomeTidy"
 
-Result fsio_open(HomeFs *fs)
+Result fsio_open(HomeFs *fs, const Region *region)
 {
     memset(fs, 0, sizeof *fs);
-    u32 ext_data[3] = {MEDIATYPE_SD, HOME_EXT_ID, 0};
+    u32 ext_data[3] = {MEDIATYPE_SD, region->ext_id, 0};
     Result rc = FSUSER_OpenArchive(&fs->ext, ARCHIVE_EXTDATA, (FS_Path){PATH_BINARY, sizeof ext_data, ext_data});
     if (R_FAILED(rc)) return rc;
     fs->ext_open = true;
-    u32 sys_data[2] = {MEDIATYPE_NAND, HOME_SYS_ID};
+    u32 sys_data[2] = {MEDIATYPE_NAND, region->sys_id};
     rc = FSUSER_OpenArchive(&fs->sys, ARCHIVE_SYSTEM_SAVEDATA, (FS_Path){PATH_BINARY, sizeof sys_data, sys_data});
     if (R_FAILED(rc)) {
         fsio_close(fs);

@@ -1,0 +1,9 @@
+[graphify extract] scanning /Volumes/Renato/3DS/hometidy-3ds
+[graphify extract] --code-only: skipping 10 non-code file(s) (8 docs, 0 papers, 2 images) — no LLM extraction
+[graphify extract] found 32 code, 0 docs, 0 papers, 0 images
+[graphify extract] 16 file(s) not classified (no supported extension or shebang), skipped: ._.graphify-autobuild.log, ._Info.plist, ._LICENSE, ._Makefile, ._graphify-out, ._hometidy.rsf.in (+10 more)
+[graphify extract] AST extraction on 32 code files...
+  warning: 10 file(s) had syntax errors and may be partially extracted: source/._fsio.c (first error at line 1, no symbols extracted), source/._fsio.h (first error at line 1, no symbols extracted), source/._i18n.h (first error at line 1, no symbols extracted), source/._main.c (first error at line 1, no symbols extracted), source/._region.c (first error at line 1, no symbols extracted) (+5 more)
+[graphify extract] wrote /Volumes/Renato/3DS/hometidy-3ds/graphify-out/graph.json: 210 nodes, 548 edges, 18 communities
+[graphify extract] wrote /Volumes/Renato/3DS/hometidy-3ds/graphify-out/.graphify_analysis.json
+[graphify extract] next: run `graphify cluster-only /Volumes/Renato/3DS/hometidy-3ds` to generate GRAPH_REPORT.md and name communities

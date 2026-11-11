@@ -130,6 +130,7 @@ static void test_layout(void)
     CHECK(strcmp(rows[3].label, "The Beta Game") == 0 && rows[3].moved); /* 4 -> 6 */
     CHECK(layout_unnamed_count(lau, sav, &db) == 1);
     CHECK(layout_has_title(lau, sav, 0x1002) && !layout_has_title(lau, sav, 0x4242));
+    CHECK(layout_folder_of(lau, sav, 0x1002) == -1 && layout_folder_of(lau, sav, 0x2001) == 0 && layout_folder_of(lau, sav, 0x4242) == -1);
 
     size_t first, last;
     CHECK(layout_diff_span(lau0, lau, LAUNCHER_SIZE, &first, &last) && first <= last);

@@ -1,6 +1,6 @@
 /* HomeTidy: sorts the HOME Menu and draws a green check on finished games.
  *
- * Runs as a CIA on Luma3DS (EUR). Every write is preceded by a backup on the SD card and
+ * Runs as a CIA on Luma3DS. Every write is preceded by a backup on the SD card and
  * checked by reading it back; a failed write puts the original bytes back.
  */
 #include <3ds.h>
@@ -15,6 +15,7 @@
 #include "core/store.h"
 #include "fsio.h"
 #include "i18n.h"
+#include "region.h"
 #include "ui.h"
 
 #define ROWS_MAX (2 * LAYOUT_SLOTS + LAYOUT_FOLDERS)
@@ -41,6 +42,7 @@ typedef struct {
     int tick;
     char msg[256], detail[160], backup[96];
 
+    const Region *region;
     HomeFs fs;
     uint8_t *launcher, *save, *cache, *cached;
     size_t ll, sl, cl, dl;
@@ -55,6 +57,7 @@ typedef struct {
     Game *games;
     size_t ngames;
     int sel, mscroll;
+    bool show_all, have_original;
     UiIcon *ic_now, *ic_after;
     char after_label[32];
 
@@ -126,6 +129,7 @@ static void build_games(App *a)
 {
     size_t lines = a->cl / CACHE_ENTRY;
     if (a->dl / SMDH_SIZE < lines) lines = a->dl / SMDH_SIZE;
+    free(a->games);
     a->games = calloc(lines ? lines : 1, sizeof(Game));
     a->ngames = 0;
     if (!a->games) return;
@@ -133,6 +137,7 @@ static void build_games(App *a)
         uint64_t tid = rd64(a->cache + i * CACHE_ENTRY + 8);
         const NameEntry *nm = namedb_find(a->names, tid);
         if (!nm || !smdh_valid(a->cached + i * SMDH_SIZE) || !is_listed_kind(tid) || !layout_has_title(a->launcher, a->save, tid)) continue;
+        if (!a->show_all && layout_folder_of(a->launcher, a->save, tid) < 0) continue; /* games sit in folders, apps at the top */
         bool dup = false;
         for (size_t k = 0; k < a->ngames; k++) dup |= a->games[k].tid == tid;
         if (dup) continue;
@@ -213,11 +218,12 @@ static void load_all(App *a)
 {
     /* The saves are open only while reading: if HOME resumed while this app held them, it
      * could not open its own and would abort. */
-    Result rc = fsio_open(&a->fs);
+    Result rc = fsio_open(&a->fs, a->region);
     if (R_FAILED(rc)) {
         snprintf(a->msg, sizeof a->msg, tr(S_ERR_OPEN), (unsigned long)rc);
         size_t n = strlen(a->msg);
-        snprintf(a->msg + n, sizeof a->msg - n, " %s", tr(S_ERR_OPEN_HINT));
+        n += (size_t)snprintf(a->msg + n, sizeof a->msg - n, " ");
+        snprintf(a->msg + n, sizeof a->msg - n, tr(S_ERR_OPEN_HINT), a->region->name);
         a->after_error = ST_ERROR; /* fatal: leaving the screen exits the app */
         a->state = ST_ERROR;
         return;
@@ -298,7 +304,7 @@ static bool apply_layout(App *a, const uint8_t *to_l, const uint8_t *to_s)
     if (!save_backup(a)) { fail_msg(a, ST_SORT, tr(S_ERR_BACKUP)); return false; }
 
     progress(a, S_WORK_WRITE);
-    Result orc = fsio_open(&a->fs);
+    Result orc = fsio_open(&a->fs, a->region);
     if (R_FAILED(orc)) { fail_rc(a, ST_SORT, S_ERR_WRITE, orc); return false; }
     Store st = store_of(a);
     int err = 0;
@@ -347,23 +353,36 @@ static void do_restore(App *a)
 
 /* ---- green check --------------------------------------------------------------------- */
 
+/* The icon blocks a marked title had before: the saved copy, else the title's own icon. */
+static bool original_icons(const Game *g, uint8_t *out)
+{
+    char p[96];
+    size_t n = 0;
+    if (g->has_backup && backup_path_for(g->tid, p, sizeof p)) {
+        uint8_t *orig = sd_read(p, &n);
+        bool ok = orig && n == SMDH_ICONS_LEN;
+        if (ok) memcpy(out, orig, n);
+        free(orig);
+        if (ok) return true;
+    }
+    return R_SUCCEEDED(fsio_title_icons(g->tid, out));
+}
+
 static void refresh_previews(App *a)
 {
     if (!a->ngames || !a->ic_now || !a->ic_after) return;
     Game *g = &a->games[a->sel];
-    uint8_t smdh[SMDH_SIZE];
+    static uint8_t smdh[SMDH_SIZE]; /* big buffers are static: the 3DS main thread stack is small */
     memcpy(smdh, a->cached + g->idx * SMDH_SIZE, SMDH_SIZE);
     ui_icon_set(a->ic_now, smdh + SMDH_ICON_LARGE, 48);
     snprintf(a->after_label, sizeof a->after_label, "%s", tr(S_MARK_AFTER));
+    a->have_original = true;
     if (!g->marked) {
         icon_mark(smdh);
-    } else if (g->has_backup) {
-        char p[96];
-        size_t n = 0;
-        backup_path_for(g->tid, p, sizeof p);
-        uint8_t *orig = sd_read(p, &n);
-        if (orig && n == SMDH_ICONS_LEN) memcpy(smdh + SMDH_ICON_SMALL, orig, n);
-        free(orig);
+    } else {
+        static uint8_t orig[SMDH_ICONS_LEN];
+        a->have_original = original_icons(g, orig);
+        if (a->have_original) memcpy(smdh + SMDH_ICON_SMALL, orig, SMDH_ICONS_LEN);
         snprintf(a->after_label, sizeof a->after_label, "%s", tr(S_MARK_ORIGINAL));
     }
     ui_icon_set(a->ic_after, smdh + SMDH_ICON_LARGE, 48);
@@ -374,29 +393,22 @@ static void toggle_mark(App *a)
     if (!a->ngames) return;
     Game *g = &a->games[a->sel];
     uint8_t *live = a->cached + g->idx * SMDH_SIZE;
-    uint8_t fresh[SMDH_ICONS_LEN];
+    static uint8_t fresh[SMDH_ICONS_LEN];
     char p[96];
     backup_path_for(g->tid, p, sizeof p);
 
     if (!g->marked) {
         if (!sd_exists(p) && !sd_write(p, live + SMDH_ICON_SMALL, SMDH_ICONS_LEN)) { fail_msg(a, ST_MARK, tr(S_ERR_BACKUP)); return; }
-        uint8_t smdh[SMDH_SIZE];
+        static uint8_t smdh[SMDH_SIZE];
         memcpy(smdh, live, SMDH_SIZE);
         icon_mark(smdh);
         memcpy(fresh, smdh + SMDH_ICON_SMALL, SMDH_ICONS_LEN);
-    } else {
-        size_t n = 0;
-        uint8_t *orig = g->has_backup ? sd_read(p, &n) : NULL;
-        if (!orig || n != SMDH_ICONS_LEN) {
-            free(orig);
-            fail_msg(a, ST_MARK, tr(S_MARK_NO_BACKUP));
-            return;
-        }
-        memcpy(fresh, orig, SMDH_ICONS_LEN);
-        free(orig);
+    } else if (!original_icons(g, fresh)) {
+        fail_msg(a, ST_MARK, tr(S_MARK_NO_ORIGINAL));
+        return;
     }
 
-    Result orc = fsio_open(&a->fs);
+    Result orc = fsio_open(&a->fs, a->region);
     if (R_FAILED(orc)) { fail_rc(a, ST_MARK, S_ERR_WRITE, orc); return; }
     Store st = store_of(a);
     int err = 0;
@@ -494,6 +506,16 @@ static void update(App *a, u32 down, const touchPosition *t)
                 }
             }
         }
+        if (down & KEY_X) {
+            uint64_t keep = a->ngames ? a->games[a->sel].tid : 0;
+            a->show_all = !a->show_all;
+            build_games(a);
+            a->sel = a->mscroll = 0;
+            for (size_t i = 0; i < a->ngames; i++)
+                if (a->games[i].tid == keep) a->sel = (int)i;
+            select_game(a, a->sel);
+            a->mscroll = a->sel > MARK_PAGE / 2 ? a->sel - MARK_PAGE / 2 : 0;
+        }
         if (down & KEY_A) toggle_mark(a);
         break;
     case ST_DONE:
@@ -534,7 +556,8 @@ static void draw_menu(App *a)
         snprintf(s, sizeof s, tr(S_INFO_UNNAMED), (int)a->unnamed);
         ui_text(36, 136, 0.5f, COL_WARN, s, 330);
     }
-    ui_text_center(TOP_W / 2, 196, 0.45f, COL_FG_MUTED, "Luma3DS  |  HOME EUR");
+    snprintf(s, sizeof s, "Luma3DS  |  HOME %s", a->region->name);
+    ui_text_center(TOP_W / 2, 196, 0.45f, COL_FG_MUTED, s);
 
     ui_bottom();
     const char *label[2] = {tr(S_MENU_SORT), tr(S_MENU_MARK)};
@@ -614,7 +637,7 @@ static void draw_mark(App *a)
     char s[96];
     size_t marked = 0;
     for (size_t i = 0; i < a->ngames; i++) marked += a->games[i].marked;
-    snprintf(s, sizeof s, "%d / %d", (int)marked, (int)a->ngames);
+    snprintf(s, sizeof s, "%d / %d %s", (int)marked, (int)a->ngames, a->show_all ? tr(S_MARK_ALL) : tr(S_MARK_GAMES));
     ui_top();
     ui_header(tr(S_MARK_TITLE), s);
     if (!a->ngames) {
@@ -626,7 +649,7 @@ static void draw_mark(App *a)
         ui_text_center(111, 52, 0.45f, COL_FG_MUTED, tr(S_MARK_BEFORE));
         ui_text_center(289, 52, 0.45f, COL_FG_MUTED, a->after_label);
         ui_icon_draw(a->ic_now, 63, 78, 2.0f);
-        if (!(g->marked && !g->has_backup)) ui_icon_draw(a->ic_after, 241, 78, 2.0f);
+        if (a->have_original) ui_icon_draw(a->ic_after, 241, 78, 2.0f);
         ui_text_center(TOP_W / 2, 192, 0.55f, COL_FG, g->nm->name);
         ui_text_center(TOP_W / 2, 214, 0.45f, g->marked ? COL_ACCENT : COL_FG_MUTED, g->marked ? tr(S_MARK_ON) : tr(S_MARK_OFF));
     }
@@ -715,10 +738,10 @@ static void draw(App *a)
 int main(void)
 {
     if (!ui_init()) return 1;
-    i18n_init();
     App *a = calloc(1, sizeof *a);
     if (!a) return 1;
     a->state = ST_LOADING;
+    a->region = region_detect();
 
     while (aptMainLoop() && !a->quit) {
         hidScanInput();

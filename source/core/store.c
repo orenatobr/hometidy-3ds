@@ -48,7 +48,7 @@ StoreStatus store_apply_layout(const Store *s, const uint8_t *cur_l, const uint8
 StoreStatus store_set_icons(const Store *s, size_t entry, const uint8_t *old_icons, const uint8_t *new_icons, int *err)
 {
     uint64_t off = (uint64_t)entry * SMDH_SIZE + SMDH_ICON_SMALL;
-    uint8_t back[SMDH_ICONS_LEN];
+    static uint8_t back[SMDH_ICONS_LEN]; /* off the small 3DS stack */
     int rc = s->write(s->ctx, STORE_CACHED, off, new_icons, SMDH_ICONS_LEN);
     if (rc) {
         s->write(s->ctx, STORE_CACHED, off, old_icons, SMDH_ICONS_LEN);

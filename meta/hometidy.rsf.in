@@ -26,10 +26,10 @@ AccessControlInfo:
 
   # ExtData
   UseExtSaveData                : true # enables ExtData       
-  # HOME Menu (EUR): SaveData.dat, Cache.dat and CacheD.dat live in SD extdata 0x98 (declared
-  # as the app's own ExtData so it is writable); Launcher.dat is system save 0x00020098
-  ExtSaveDataId                 : 0x98
-  SystemSaveDataId1             : 0x00020098
+  # HOME Menu (@REGION@): SaveData.dat, Cache.dat and CacheD.dat live in SD extdata @EXT@ (declared
+  # as the app's own ExtData so it is writable); Launcher.dat is system save @SYS@
+  ExtSaveDataId                 : @EXT@
+  SystemSaveDataId1             : @SYS@
 
   # FS:USER Archive Access Permissions
   # Uncomment as required

@@ -15,12 +15,12 @@ DATA        :=
 INCLUDES    := source source/core
 
 APP_TITLE       := HomeTidy
-APP_DESCRIPTION := Sort the HOME Menu, check off finished games
+APP_DESCRIPTION := Sort HOME, mark finished games
 APP_AUTHOR      := orenatobr
 ICON            := meta/icon.png
 
 ARCH    := -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
-CFLAGS  := -g -Wall -Wextra -O2 -mword-relocations -ffunction-sections $(ARCH) -std=gnu11
+CFLAGS  := -g -Wall -Wextra -Wstack-usage=8192 -Werror=stack-usage=8192 -O2 -mword-relocations -ffunction-sections $(ARCH) -std=gnu11
 CFLAGS  += $(INCLUDE) -D__3DS__
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 ASFLAGS := -g $(ARCH)

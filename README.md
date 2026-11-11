@@ -10,13 +10,13 @@ It replaces the usual routine of dumping `Launcher.dat` and `SaveData.dat` over 
 ## Requirements
 
 - A 3DS or 2DS with [Luma3DS](https://github.com/LumaTeam/Luma3DS). The CIA asks the system for file system rights that only a custom firmware grants.
-- A European (EUR) HOME Menu. The title ids in the build are the EUR ones (`extdata 0x98`, system save `0x00020098`). Other regions need those ids changed in `meta/hometidy.rsf` and `source/fsio.h`.
+- Any console region (JPN, USA, EUR/AUS, CHN, KOR, TWN). The app detects the region by itself, but the CIA's exheader can name only one extdata and one system save, so there is one CIA per region. Pick the one for your console.
 - [FBI](https://github.com/nh-server/FBI-NH) or any other CIA installer.
 
 ## Install
 
-1. Download `hometidy.cia` from the [latest release](../../releases/latest).
-2. Copy it to the SD card and install it with FBI.
+1. Download `hometidy-<region>.cia` for your console from the [latest release](../../releases/latest). Australian consoles use EUR.
+2. Copy it to the SD card and install it with FBI. All regions share one title id, so installing the right build replaces a wrong one.
 3. Open **HomeTidy** from the HOME Menu.
 
 ## Use
@@ -49,7 +49,9 @@ The game card slot never moves. Positions already in use at the top level are re
 
 Pick a game on the bottom screen. The top screen shows the icon now next to the icon with the check. **A** toggles it. Games already marked show a small check on the list.
 
-The original icon of every game you mark is saved to `sdmc:/3ds/HomeTidy/icons/<title id>.bin`, which is what unmarking restores. Reboot afterwards to see the change.
+The list shows titles that sit inside a HOME folder, on the assumption that games live in folders and apps at the top level. A game left loose at the top is hidden by that rule: press **X** to show every title (the header says which view you are in). System apps never show.
+
+Unmarking puts the original icon back. It uses the copy HomeTidy saved to `sdmc:/3ds/HomeTidy/icons/<title id>.bin` when it marked the game, and otherwise reads the icon from the title itself, so checks drawn by other tools can be undone too. Reboot afterwards to see the change.
 
 ### Names
 
@@ -66,8 +68,17 @@ docker run --rm -v "$PWD":/work -w /work devkitpro/devkitarm make
 That produces `hometidy.3dsx` and `hometidy.elf`. For the CIA, put `makerom` and `bannertool` on your `PATH` and run:
 
 ```sh
-./scripts/build-cia.sh        # writes out/hometidy.cia
+./scripts/build-cia.sh        # writes out/hometidy-<region>.cia for every region (or name some: EUR USA)
 ```
+
+### Releasing
+
+The CIA is built by hand, not in CI, because `makerom` and `bannertool` aren't packaged for the CI image:
+
+1. Build the ELF with the Docker command above.
+2. Get `makerom` ([3DSGuy/Project_CTR](https://github.com/3DSGuy/Project_CTR), tag `makerom-v0.18.4`) and `bannertool` ([carstene1ns/3ds-bannertool](https://github.com/carstene1ns/3ds-bannertool)) and put them on your `PATH`.
+3. Run `./scripts/build-cia.sh`, then `shasum -a 256 out/hometidy-*.cia > out/SHA256SUMS.txt`.
+4. Upload `out/hometidy-*.cia` and the sums to a GitHub release.
 
 Tests for the portable core (sorting, layout, icons, safe writes with injected failures) run on the host with a normal C compiler:
 
@@ -79,7 +90,8 @@ See [docs/FORMAT.md](docs/FORMAT.md) for the file layouts the code relies on.
 
 ## Limits
 
-- EUR only, as described above.
+- One CIA per region (see above). If you install the wrong region's build, the app says which one your console needs.
+- The layout offsets come from HomeMenuEditor3DS and are checked by file size. I have only run this against an EUR console's files, so the other regions are untested.
 - If HOME has changed its files since the app started (for example after you moved an icon without leaving the app), re-open the app before applying.
 - This writes to system files. The backup and read-back checks are there for a reason, but you use it at your own risk.
 

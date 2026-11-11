@@ -11,17 +11,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "core/smdh.h"
+#include "region.h"
+
 typedef struct {
-    FS_Archive ext; /* extdata 0x98: SaveData.dat, Cache.dat, CacheD.dat */
+    FS_Archive ext; /* region extdata: SaveData.dat, Cache.dat, CacheD.dat */
     FS_Archive sys; /* system save 0x00020098: Launcher.dat */
     bool ext_open;
     bool sys_open;
 } HomeFs;
 
-#define HOME_EXT_ID 0x00000098u /* HOME Menu, EUR */
-#define HOME_SYS_ID 0x00020098u
-
-Result fsio_open(HomeFs *fs);
+Result fsio_open(HomeFs *fs, const Region *region);
 void fsio_close(HomeFs *fs);
 
 /** Read a whole file into a new malloc buffer (free it).
@@ -37,6 +37,10 @@ Result fsio_read_at(FS_Archive ar, const char *path, uint64_t off, uint8_t *buf,
 
 /** Overwrite a range of an existing file (never changes its size). */
 Result fsio_write_at(FS_Archive ar, const char *path, uint64_t off, const uint8_t *data, size_t len);
+
+/** Read the icon blocks (SMDH_ICONS_LEN bytes) from the title's own ExeFS icon, which is the
+ *  original HOME caches. Tries the SD card, then the NAND. */
+Result fsio_title_icons(uint64_t tid, uint8_t *out);
 
 /** Commit pending writes of a save data archive. */
 Result fsio_commit(FS_Archive ar);

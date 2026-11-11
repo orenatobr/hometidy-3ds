@@ -13,8 +13,8 @@
 
 #include "smdh.h"
 
-#define LAUNCHER_SIZE 9560 /* system save 0x00020098 (HOME Menu EUR) */
-#define SAVEDATA_SIZE 11680 /* extdata 0x98 (HOME Menu EUR) */
+#define LAUNCHER_SIZE 9560 /* system save of the HOME Menu */
+#define SAVEDATA_SIZE 11680 /* extdata of the HOME Menu */
 #define LAYOUT_SLOTS 360
 #define LAYOUT_FOLDERS 60
 #define FOLDER_NAME_BYTES 0x22
@@ -60,6 +60,9 @@ size_t layout_rows(const uint8_t *after_l, const uint8_t *after_s, const uint8_t
 
 /** Titles in the layout that have no known name. */
 size_t layout_unnamed_count(const uint8_t *launcher, const uint8_t *save, const NameDB *names);
+
+/** Folder index a title sits in, or -1 when it is at the top level or not in the layout. */
+int layout_folder_of(const uint8_t *launcher, const uint8_t *save, uint64_t tid);
 
 /** True when @p tid is placed somewhere in the HOME layout. */
 bool layout_has_title(const uint8_t *launcher, const uint8_t *save, uint64_t tid);

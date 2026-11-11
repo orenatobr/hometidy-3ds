@@ -11,14 +11,14 @@
 #define CHUNK (256 * 1024)
 #define ROOT "sdmc:/3ds/HomeTidy"
 
-Result fsio_open(HomeFs *fs)
+Result fsio_open(HomeFs *fs, const Region *region)
 {
     memset(fs, 0, sizeof *fs);
-    u32 ext_data[3] = {MEDIATYPE_SD, HOME_EXT_ID, 0};
+    u32 ext_data[3] = {MEDIATYPE_SD, region->ext_id, 0};
     Result rc = FSUSER_OpenArchive(&fs->ext, ARCHIVE_EXTDATA, (FS_Path){PATH_BINARY, sizeof ext_data, ext_data});
     if (R_FAILED(rc)) return rc;
     fs->ext_open = true;
-    u32 sys_data[2] = {MEDIATYPE_NAND, HOME_SYS_ID};
+    u32 sys_data[2] = {MEDIATYPE_NAND, region->sys_id};
     rc = FSUSER_OpenArchive(&fs->sys, ARCHIVE_SYSTEM_SAVEDATA, (FS_Path){PATH_BINARY, sizeof sys_data, sys_data});
     if (R_FAILED(rc)) {
         fsio_close(fs);
@@ -105,6 +105,31 @@ Result fsio_write_at(FS_Archive ar, const char *path, uint64_t off, const uint8_
         done += put;
     }
     FSFILE_Close(fh);
+    return rc;
+}
+
+Result fsio_title_icons(uint64_t tid, uint8_t *out)
+{
+    static uint8_t smdh[SMDH_SIZE]; /* off the small 3DS stack */
+    static const u32 file[5] = {0x00000000, 0x00000000, 0x00000002, 0x6E6F6369 /* "icon" */, 0x00000000};
+    Result rc = MAKERESULT(RL_PERMANENT, RS_NOTFOUND, RM_APPLICATION, RD_NOT_FOUND);
+    static const u32 medias[2] = {MEDIATYPE_SD, MEDIATYPE_NAND};
+    for (int m = 0; m < 2; m++) {
+        u32 media = medias[m];
+        u32 arch[4] = {(u32)tid, (u32)(tid >> 32), media, 0};
+        Handle fh;
+        rc = FSUSER_OpenFileDirectly(&fh, ARCHIVE_SAVEDATA_AND_CONTENT, (FS_Path){PATH_BINARY, sizeof arch, arch},
+                                     (FS_Path){PATH_BINARY, sizeof file, file}, FS_OPEN_READ, 0);
+        if (R_FAILED(rc)) continue;
+        u32 got = 0;
+        rc = FSFILE_Read(fh, &got, 0, smdh, SMDH_SIZE);
+        FSFILE_Close(fh);
+        if (R_SUCCEEDED(rc) && got == SMDH_SIZE && smdh_valid(smdh)) {
+            memcpy(out, smdh + SMDH_ICON_SMALL, SMDH_ICONS_LEN);
+            return 0;
+        }
+        rc = MAKERESULT(RL_PERMANENT, RS_INVALIDSTATE, RM_APPLICATION, RD_NO_DATA);
+    }
     return rc;
 }
 

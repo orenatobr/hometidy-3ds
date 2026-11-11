@@ -6,3 +6,5 @@ out/
 *.cia
 *.map
 *.o
+*.dSYM/
+tests/test_core

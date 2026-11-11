@@ -49,7 +49,7 @@ The game card slot never moves. Positions already in use at the top level are re
 
 Pick a game on the bottom screen. The top screen shows the icon now next to the icon with the check. **A** toggles it. Games already marked show a small check on the list.
 
-The list shows games only, meaning titles that sit inside a HOME folder; apps and homebrew at the top level are hidden. **X** switches between games and all titles. System apps never show.
+The list shows titles that sit inside a HOME folder, on the assumption that games live in folders and apps at the top level. A game left loose at the top is hidden by that rule: press **X** to show every title (the header says which view you are in). System apps never show.
 
 Unmarking puts the original icon back. It uses the copy HomeTidy saved to `sdmc:/3ds/HomeTidy/icons/<title id>.bin` when it marked the game, and otherwise reads the icon from the title itself, so checks drawn by other tools can be undone too. Reboot afterwards to see the change.
 

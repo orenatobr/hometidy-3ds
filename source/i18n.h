@@ -43,8 +43,8 @@
     X(REBOOT_FAIL, "Reboot failed (%08lX). Hold power and choose Reboot.") \
     X(MARK_TITLE, "Green check") \
     X(MARK_HINT, "A  Mark/unmark    X  Games/All    B  Back") \
-    X(MARK_GAMES, "games")\
-    X(MARK_ALL, "all titles")\
+    X(MARK_GAMES, "in folders")\
+    X(MARK_ALL, "all")\
     X(MARK_ON, "Marked") \
     X(MARK_OFF, "Not marked") \
     X(MARK_ORIGINAL, "Original") \
